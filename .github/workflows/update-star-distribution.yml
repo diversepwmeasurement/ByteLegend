@@ -1,20 +1,22 @@
-name: update-star-distribution
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: '54 22 * * *'
-
 jobs:
   deploy:
     name: Update star distribution
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v3
-        with:
-          repository: ByteLegend/ByteLegend
-          submodules: recursive
-          token: ${{ secrets.BYTELEGENDBOT_TOKEN }}
-      - name: Gradle build
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: server:dal-dynamodb:updateStarDistribution -Ddynamodb.serverLocation=Seoul -Ddynamodb.accessKeyId=${{ secrets.DYNAMODB_ADMIN_ACCESS_KEY_ID }} -Ddynamodb.secretAccessKey=${{ secrets.DYNAMODB_ADMIN_SECRET_ACCESS_KEY }} -DagreePublicBuildScanTermOfService=yes
+    - continue-on-error: true
+      uses: actions/checkout@v3
+      with:
+        repository: ByteLegend/ByteLegend
+        submodules: recursive
+        token: ${{ secrets.BYTELEGENDBOT_TOKEN }}
+    - continue-on-error: true
+      name: Gradle build
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: server:dal-dynamodb:updateStarDistribution -Ddynamodb.serverLocation=Seoul
+          -Ddynamodb.accessKeyId=${{ secrets.DYNAMODB_ADMIN_ACCESS_KEY_ID }} -Ddynamodb.secretAccessKey=${{
+          secrets.DYNAMODB_ADMIN_SECRET_ACCESS_KEY }} -DagreePublicBuildScanTermOfService=yes
+name: update-star-distribution
+on:
+  repository_dispatch:
+    types: trigger-ga___update-star-distribution.yml
